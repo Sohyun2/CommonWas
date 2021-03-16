@@ -6,7 +6,7 @@
 		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-4.3.xsd">
 	<context:annotation-config/>
 	<context:property-placeholder location="file:///C:\was\config\db.properties" />
-	
+	 
 	<!-- DB -->	
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 		<property name="driverClassName" value="${db.driver}"/>
