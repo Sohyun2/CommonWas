@@ -1,23 +1,80 @@
 package com.was.ios.common.vo;
 
 import org.json.simple.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 public class ResponseObject {
-	private static final String Success = "0";
-	private static final String Fail = "-1";
-	
-	public ResponseObject() { }
-	
-	public JSONObject getResponse(String resultCode, Object obj) {
-		JSONObject responseObj = new JSONObject();
-		
-		responseObj.put("resultCode", resultCode);
-		if(resultCode == Fail) {
-			//responseObj.put("resultMessage", resultMessage);	
-		}
-		responseObj.put("result", obj);
-		
-		return responseObj;
-	}
 
+	private HttpStatus httpStatus;
+	
+    private int code;
+    private boolean status;
+    private String message;
+    private JSONObject data;
+    private ErrorMessage error;
+    
+    public ResponseObject() { }
+
+    public ResponseObject(HttpStatus httpStatus) { 
+    	setStatus(httpStatus);
+    }
+
+    public ResponseObject(AbstractEbloBaseException ex, HttpStatus httpStatus) { 
+    	setStatus(ex, httpStatus);
+    }
+    
+    public void setStatus(HttpStatus httpStatus) {
+    	this.httpStatus = httpStatus;
+
+    	this.code = httpStatus.value();
+    	this.status = (httpStatus.isError()) ? false : true;
+    	this.data = new JSONObject();
+    	this.message = httpStatus.getReasonPhrase();
+    }
+
+    public void setStatus(AbstractEbloBaseException ex, HttpStatus httpStatus) {
+    	this.httpStatus = httpStatus;
+
+    	this.code = httpStatus.value();
+    	this.status = (httpStatus.isError()) ? false : true;
+    	this.data = new JSONObject();
+    	this.message = httpStatus.getReasonPhrase();
+    	
+        this.error = new ErrorMessage(code, ex.getMessage(), "");
+    }
+
+    public void add(String key, Object result) {
+        this.data.put(key, result);
+    }
+    
+    public void remove(String key) {
+        this.data.remove(key);
+    }
+
+    public ResponseEntity<JSONObject> sendResponse() throws NullPointerException {	
+    	if(this.httpStatus == null) {
+    		throw new NullPointerException();
+    	}
+    	return new ResponseEntity<JSONObject>(setResponse(), this.httpStatus);
+    }
+    
+    public ResponseEntity<JSONObject> sendResponse(HttpStatus httpStatus) throws NullPointerException {	
+    	if(this.httpStatus == null) {
+    		throw new NullPointerException();
+    	}
+    	return new ResponseEntity<JSONObject>(setResponse(), httpStatus);
+    }
+    
+    private JSONObject setResponse() {
+    	JSONObject resultObj = new JSONObject();
+    	
+    	resultObj.put("code", this.code);
+    	resultObj.put("status", this.status);
+    	resultObj.put("data", this.data);
+    	resultObj.put("message", this.message);
+    	resultObj.put("error", this.error);
+    	
+    	return resultObj;    	
+    }
 }
