@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.was.ios.common.model.DBHelper;
+import com.was.ios.common.dao.DBHelper;
 
 @RestController
 public class IOSMainController {

@@ -1,4 +1,4 @@
-package com.was.ios.common.vo;
+package com.was.ios.common.util.response;
 
 import org.json.simple.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -12,18 +12,18 @@ public class ResponseObject {
     private boolean status;
     private String message;
     private JSONObject data;
-    private ErrorMessage error;
+    //private ErrorMessage error;
     
     public ResponseObject() { }
 
     public ResponseObject(HttpStatus httpStatus) { 
     	setStatus(httpStatus);
     }
-
+/*
     public ResponseObject(AbstractEbloBaseException ex, HttpStatus httpStatus) { 
     	setStatus(ex, httpStatus);
     }
-    
+*/    
     public void setStatus(HttpStatus httpStatus) {
     	this.httpStatus = httpStatus;
 
@@ -32,7 +32,7 @@ public class ResponseObject {
     	this.data = new JSONObject();
     	this.message = httpStatus.getReasonPhrase();
     }
-
+/*
     public void setStatus(AbstractEbloBaseException ex, HttpStatus httpStatus) {
     	this.httpStatus = httpStatus;
 
@@ -43,12 +43,18 @@ public class ResponseObject {
     	
         this.error = new ErrorMessage(code, ex.getMessage(), "");
     }
-
-    public void add(String key, Object result) {
+*/
+    public void add(String key, Object result) throws NullPointerException {	
+    	if(this.httpStatus == null) {
+    		throw new NullPointerException();
+    	}
         this.data.put(key, result);
     }
     
-    public void remove(String key) {
+    public void remove(String key) throws NullPointerException {	
+    	if(this.httpStatus == null) {
+    		throw new NullPointerException();
+    	}
         this.data.remove(key);
     }
 
@@ -73,7 +79,7 @@ public class ResponseObject {
     	resultObj.put("status", this.status);
     	resultObj.put("data", this.data);
     	resultObj.put("message", this.message);
-    	resultObj.put("error", this.error);
+    	//resultObj.put("error", this.error);
     	
     	return resultObj;    	
     }
