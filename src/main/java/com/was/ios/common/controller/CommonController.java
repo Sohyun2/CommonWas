@@ -57,13 +57,19 @@ public class CommonController {
 	}
 
 	@PostMapping(value = DEF_API + "/signIn")
-	public String signIn(HttpServletRequest request) {
+	public ResponseEntity<JSONObject> signIn(HttpServletRequest request) {
 		// 비밀번호 암호화 시킬 것
 		boolean signInResult = service.signIn(request);
 
-		if (!signInResult)
-			return "fail";
-		return "success";
+		ResponseObject response = new ResponseObject();
+				
+		if (!signInResult) { // 회원가입 실패
+			return response.sendResponse(HttpStatus.UNAUTHORIZED);
+		} else {
+			response.setStatus(HttpStatus.OK);
+		}
+
+		return response.sendResponse();
 	}
 
 	@PostMapping(value = DEF_API + "/login")

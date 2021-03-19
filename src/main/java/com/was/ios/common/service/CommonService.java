@@ -37,5 +37,4 @@ public class CommonService {
 
 		return helper.getObject("USP_LSH_MBI_MA_USER_S", params);
 	}
-	
 }

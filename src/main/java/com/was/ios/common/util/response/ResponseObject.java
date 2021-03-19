@@ -12,18 +12,14 @@ public class ResponseObject {
     private boolean status;
     private String message;
     private JSONObject data;
-    //private ErrorMessage error;
+    private String errMsg;
     
     public ResponseObject() { }
 
     public ResponseObject(HttpStatus httpStatus) { 
     	setStatus(httpStatus);
     }
-/*
-    public ResponseObject(AbstractEbloBaseException ex, HttpStatus httpStatus) { 
-    	setStatus(ex, httpStatus);
-    }
-*/    
+
     public void setStatus(HttpStatus httpStatus) {
     	this.httpStatus = httpStatus;
 
@@ -32,8 +28,8 @@ public class ResponseObject {
     	this.data = new JSONObject();
     	this.message = httpStatus.getReasonPhrase();
     }
-/*
-    public void setStatus(AbstractEbloBaseException ex, HttpStatus httpStatus) {
+    
+    public void setStatus(HttpStatus httpStatus, String errMsg) {
     	this.httpStatus = httpStatus;
 
     	this.code = httpStatus.value();
@@ -41,9 +37,10 @@ public class ResponseObject {
     	this.data = new JSONObject();
     	this.message = httpStatus.getReasonPhrase();
     	
-        this.error = new ErrorMessage(code, ex.getMessage(), "");
+    	if(!errMsg.equals("")) {
+    		this.errMsg = errMsg;
+    	}
     }
-*/
     public void add(String key, Object result) throws NullPointerException {	
     	if(this.httpStatus == null) {
     		throw new NullPointerException();
@@ -79,7 +76,10 @@ public class ResponseObject {
     	resultObj.put("status", this.status);
     	resultObj.put("data", this.data);
     	resultObj.put("message", this.message);
-    	//resultObj.put("error", this.error);
+    	
+    	if(!errMsg.equals("")) {
+    		resultObj.put("errMsg", this.errMsg);
+    	}
     	
     	return resultObj;    	
     }
