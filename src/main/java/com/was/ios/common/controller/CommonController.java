@@ -16,16 +16,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.was.ios.common.model.DBHelper;
-import com.was.ios.common.security.JwtAuthenticationTokenProvider;
+import com.was.ios.common.dao.DBHelper;
 import com.was.ios.common.service.CommonService;
-import com.was.ios.common.vo.ResponseObject;
+import com.was.ios.common.util.response.ResponseObject;
+import com.was.ios.common.util.security.JwtAuthenticationTokenProvider;
 
 @RestController
 public class CommonController {
-
-	private static final String Success = "0";
-	private static final String Fail = "-1";
+	// api버전을 정의하여 관리하자
+	// ex) {serviceName}/{version}/{REST URL}
+	
+	private static final String SERVICE_NAME = "/user";
+	private static final String VERSION = "/v1.0";
+	private static final String DEF_API = SERVICE_NAME + VERSION;
 
 	@Autowired
 	private DBHelper helper;
@@ -53,7 +56,7 @@ public class CommonController {
 		return "main";
 	}
 
-	@PostMapping(value = "/signIn")
+	@PostMapping(value = DEF_API + "/signIn")
 	public String signIn(HttpServletRequest request) {
 		// 비밀번호 암호화 시킬 것
 		boolean signInResult = service.signIn(request);
@@ -63,21 +66,21 @@ public class CommonController {
 		return "success";
 	}
 
-	@PostMapping(value = "/login")
+	@PostMapping(value = DEF_API + "/login")
 	public ResponseEntity<JSONObject> login(HttpServletRequest request) {
 		//1. db에서 login값 확인 2. login정보 확인되면 토큰 발급해서 클라이언트단으로 보내주기
 		JSONObject loginObject = service.login(request); // db에 넘어온 정보가 존재하는지 확인
 
 		ResponseObject response = new ResponseObject();
-		
-		// 일치하는 login정보가 없음
-		if (loginObject == null) {
+				
+		if (loginObject == null) { // 일치하는 login정보가 없음
 			return response.sendResponse(HttpStatus.UNAUTHORIZED);
+		} else {
+			response.setStatus(HttpStatus.OK);
+			
+			response.add("token", getToken(loginObject)); // login정보가 존재하면 token발급
+			response.add("loginObject", loginObject);			
 		}
-
-		response.setStatus(HttpStatus.OK);
-		response.add("token", getToken(loginObject)); // login정보가 존재하면 token발급
-		response.add("loginObject", loginObject);
 		
 		return response.sendResponse();
 	}

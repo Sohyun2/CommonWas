@@ -1,4 +1,4 @@
-package com.was.ios.common.security;
+package com.was.ios.common.util.security;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
