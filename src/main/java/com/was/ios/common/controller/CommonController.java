@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.was.ios.common.dao.DBHelper;
 import com.was.ios.common.service.CommonService;
+import com.was.ios.common.util.response.DataBaseResponse;
 import com.was.ios.common.util.response.ResponseObject;
 import com.was.ios.common.util.security.JwtAuthenticationTokenProvider;
 
@@ -38,7 +39,7 @@ public class CommonController {
 	private JwtAuthenticationTokenProvider tokenProvider;
 
 	private static final Logger logger = LoggerFactory.getLogger(CommonController.class);
-
+/*
 	@GetMapping(value = "/")
 	public String home(Locale locale, Model model) {
 		try {
@@ -48,22 +49,29 @@ public class CommonController {
 			logger.info("===== " + ip + " server start =====");
 
 			// db connection 연결
-			helper.getConnection();
+//			helper.getConnection();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 
-		return "main";
+		return "maerong";
 	}
-
+*/
 	@PostMapping(value = DEF_API + "/signIn")
-	public String signIn(HttpServletRequest request) {
+	public ResponseEntity<JSONObject> signIn(HttpServletRequest request) {
 		// 비밀번호 암호화 시킬 것
-		boolean signInResult = service.signIn(request);
+		DataBaseResponse result = service.signIn(request);
 
-		if (!signInResult)
-			return "fail";
-		return "success";
+		ResponseObject response = new ResponseObject();
+				
+		if (!result.getStatus()) { // 회원가입 실패
+			response.setStatus(result.getHttpStatus(), result.getErrMsg());
+			return response.sendResponse();
+		} else {
+			response.setStatus(HttpStatus.OK);
+		}
+
+		return response.sendResponse();
 	}
 
 	@PostMapping(value = DEF_API + "/login")

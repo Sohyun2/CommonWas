@@ -5,7 +5,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-4.3.xsd">
 	<context:annotation-config/>
-	<context:property-placeholder location="file:///C:\was\config\db.properties" />
+	<context:property-placeholder order="1" ignore-unresolvable="true" location="file:///C:\was\config\db.properties" />
 	 
 	<!-- DB -->	
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
@@ -17,5 +17,12 @@
 
 	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
 		<constructor-arg ref="hikariConfig" />
+	</bean>
+	
+	<!-- properties -->
+	<context:property-placeholder order="2" ignore-unresolvable="true" location="file:///C:\was\config\webInfo.properties" />
+	<bean id="prop" class="com.was.ios.common.util.Properties">
+		<property name="uploadBasePath" value="${props.uploadBasePath}"/>
+		<property name="uploadTempPath" value="${props.uploadTempPath}"/>	
 	</bean>
 </beans>
