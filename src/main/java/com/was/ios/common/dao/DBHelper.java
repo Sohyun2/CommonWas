@@ -53,9 +53,6 @@ public class DBHelper {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			String errCode = Integer.toString(e.getErrorCode());
-			logger.error(errCode);
-			logger.error(e.getMessage());
 		}
 		
 		return jsonObject;
@@ -90,47 +87,63 @@ public class DBHelper {
 
 	/********************************************* save method *********************************************/
 
-	// Insert, Delete, Update
-	public boolean save(String procName, Object[] params) {
-		boolean result = true;
-		
+	// Insert, Delete, Update	
+	public DataBaseResponse save(String procName, Object[] params) {
+		Connection conn = null;
 		DataBaseResponse response= new DataBaseResponse();
+		
 		try {
 			String parameter = this.SetParamCreate(params);
 			String sql = this.setSql(procName, parameter);
 			
 			// 1. AutoCommit 해제
+			conn = ds.getConnection();
 			conn.setAutoCommit(false);
 
-			CallableStatement cstmt = this.conn.prepareCall(sql);
+			CallableStatement cstmt = conn.prepareCall(sql);
 			
 			for(int i = 1; i <= params.length; i++) {
 				cstmt.setString(i, params[i-1].toString());	
 			}
 			
-			result = cstmt.executeUpdate() == 1 ? true : false;
+			boolean result = cstmt.executeUpdate() == 1 ? true : false;
 			if(result) {
+				response.setStatus(true);
 				response.setHttpStatus(HttpStatus.OK);
 			}
 			
 			// Commit data here
 			conn.commit();
-		} catch(SQLException se) {
-			se.printStackTrace();
-			// RollBack
+		} 
+		catch(SQLException se) {
+			String errMsg = se.getMessage();
+			logger.error("SQLException : " + errMsg);
+
 			try {
 				if(conn != null) {
+					// RollBack
 					conn.rollback();
 				}
-				
-				//response.setErrCode(se.getMessage());
 			} catch(SQLException se2) {
 				se2.printStackTrace();
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			
+			response.setStatus(false);
+			response.setHttpStatus(HttpStatus.UNAUTHORIZED);
+			response.setErrMsg(errMsg);
+		} 
+		catch (Exception ex) {
+			logger.error("Exception : " + ex.getMessage());
 		}
-		return result;
+		finally {
+			try {
+				conn.setAutoCommit(true);
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}			
+		}
+		return response;
 	}
 
 	/**********************************************************************************************************/
@@ -151,9 +164,10 @@ public class DBHelper {
 				cstmt.setString(i, params[i-1].toString());	
 			}
 			rs = cstmt.executeQuery();	
-		}
-		catch(Exception ex){
-			System.out.println("Exception : " + ex);
+		} catch (SQLException se) {
+			logger.error("SQLException : " + se);
+		} catch(Exception e){
+			logger.error("Exception : " + e);
 		} 
 		
 		return rs;
@@ -186,7 +200,9 @@ public class DBHelper {
 			logger.error("DataSource NullPointException");
 		} else {
 			try {
-				if(this.conn == null) this.conn = ds.getConnection();
+				if(this.conn == null) {
+					this.conn = ds.getConnection();
+				}
 			} catch (SQLException ex) {
 				ex.printStackTrace();
 			}

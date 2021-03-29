@@ -77,7 +77,7 @@ public class ResponseObject {
     	resultObj.put("data", this.data);
     	resultObj.put("message", this.message);
     	
-    	if(!errMsg.equals("")) {
+    	if(!this.status) {
     		resultObj.put("errMsg", this.errMsg);
     	}
     	

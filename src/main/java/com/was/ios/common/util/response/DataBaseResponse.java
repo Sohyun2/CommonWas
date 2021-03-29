@@ -5,24 +5,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 public class DataBaseResponse {
-	private boolean result;
-	private String errCode;
+	private boolean status;
+	private String errMsg;
 	private HttpStatus httpStatus;
 
-	public boolean isResult() {
-		return result;
+	public boolean getStatus() {
+		return status;
 	}
 
-	public void setResult(boolean result) {
-		this.result = result;
+	public void setStatus(boolean status) {
+		this.status = status;
 	}
 
-	public String getErrCode() {
-		return errCode;
+	public String getErrMsg() {
+		return errMsg;
 	}
 
-	public void setErrCode(String errCode) {
-		this.errCode = errCode;
+	public void setErrMsg(String errMsg) {
+		this.errMsg = errMsg;
 		convertResultToHttpStatus();
 	}
 
@@ -35,14 +35,12 @@ public class DataBaseResponse {
 	}
 
 	private void convertResultToHttpStatus() {
-		if(this.result) {
+		if(this.status) {
 			this.httpStatus = HttpStatus.OK;
 		} else {
-			if(this.errCode.equals("401")) {
+			if(this.errMsg.equals("401")) {
 				this.httpStatus = HttpStatus.UNAUTHORIZED; // 인증실패
-			} else if (this.errCode.equals("403")) {
-				this.httpStatus = HttpStatus.FORBIDDEN; // 인가 실패(사용자가 리소스에 대한 필요 권한을 갖고있지 않음)
-			} else if (this.errCode.equals("403")) {
+			} else if (this.errMsg.equals("403")) {
 				this.httpStatus = HttpStatus.FORBIDDEN; // 인가 실패(사용자가 리소스에 대한 필요 권한을 갖고있지 않음)
 			} 
 		}
@@ -53,8 +51,8 @@ public class DataBaseResponse {
 		
 		resultObj.put("status", this.httpStatus);
 		
-		if(this.httpStatus != HttpStatus.OK) {
-			resultObj.put("errMsg", this.errCode);
+		if(!status) {
+			resultObj.put("errMsg", this.errMsg);
 		}
 		
 		return resultObj;
